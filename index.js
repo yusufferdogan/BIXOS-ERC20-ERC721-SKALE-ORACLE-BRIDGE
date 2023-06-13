@@ -45,9 +45,8 @@ async function main() {
 
 	const res = oracleResponse["result"];
 
-	console.log("Claim: ", claim);
 	const parsedResult = JSON.parse(res);
-	console.log("parsedResult: ", parsedResult);
+
 	const claimTransactionHash = await claim.claim([
 		parsedResult["cid"],
 		parsedResult["uri"],
@@ -66,7 +65,7 @@ async function main() {
 			}
 		})
 	], {
-		gasLimit: BigInt(10000000),
+		gasLimit: BigInt(140000000),
 		gasPrice: await provider.getFeeData().gasPrice
 	});
 	console.log("Claim Transaction Hash: ", claimTransactionHash);
