@@ -1,0 +1,13 @@
+{
+  "chain": {
+    "rpcUrl1": "https://mainnet.skalenodes.com/v1/honorable-steel-rasalhague",
+    "rpcUrl": "https://staging-v3.skalenodes.com/v1/staging-utter-unripe-menkar"
+  },
+  "oracle": {
+      "address": "0xD46eF611b62aAE8bCf253E1f09e40dcFfd305227",
+      "methods": {
+        "submit": "oracle_submitRequest",
+        "check": "oracle_checkResult"
+      }
+  }
+}
