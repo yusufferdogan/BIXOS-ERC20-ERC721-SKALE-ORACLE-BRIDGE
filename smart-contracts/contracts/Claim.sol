@@ -32,15 +32,15 @@ contract Claim {
     }
 
     function claim(IOracle.OracleResponse memory response) external onlyValidResponse(response) {
-       if (claimed[msg.sender])
+        if (claimed[msg.sender])
            revert AlreadyClaimed({
                attemptedClaimer: msg.sender
            });
 
-       claimed[msg.sender] = true;
-       token.mint(msg.sender);
+        claimed[msg.sender] = true;
+        token.mint(msg.sender);
 
-       emit ClaimTokens(msg.sender);
+        emit ClaimTokens(msg.sender);
     }
 
 }

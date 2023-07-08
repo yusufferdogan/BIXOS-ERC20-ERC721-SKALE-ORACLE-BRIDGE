@@ -3,7 +3,7 @@ const {
 	chain
 } = require("./config.json");
 const { ethers } = require("ethers");
-const deployment = require("./smart-contracts/deployments/deployments-2.json");
+const deployment = require("./smart-contracts/deployments/deployments-4.json");
 const claimAbi = require("./smart-contracts/artifacts/contracts/Claim.sol/Claim.json");
 const {generateOracleRequest} = require("./oracle");
 
@@ -25,7 +25,6 @@ async function main() {
 	const request = {
 		"cid": 1,
 		"uri": "eth://",
-		"jsps": ["/rslts"],
 		"encoding": "json",
 		"ethApi": "eth_call",
 		"params": [{
@@ -37,31 +36,44 @@ async function main() {
 			),
 			"gas": "0xfffff"
 		},
-		"latest"]
+		"latest"],
 	}
 
 	const requestStr = JSON.stringify(request);
 	const oracleResponse = await generateOracleRequest(requestStr.slice(1, requestStr.length - 1));
-
 	const res = oracleResponse["result"];
+	const paramsStartIndex = res.toString().search(/params/) + 8;
+	const paramsEndIndex = res.toString().search(/time/) - 2;
+
 
 	const parsedResult = JSON.parse(res);
 
 	const claimTransactionHash = await claim.claim([
 		parsedResult["cid"],
 		parsedResult["uri"],
-		parsedResult["jsps"],
+		parsedResult["encoding"],
+		parsedResult["ethApi"],
+		oracleResponse["result"].slice(paramsStartIndex, paramsEndIndex),
+		[],
 		[],
 		"",
 		parsedResult["time"],
 		parsedResult["rslts"],
-		parsedResult["sigs"].filter((sig) => sig).map((sig) => {
+		parsedResult["sigs"].map((sig) => {
 			console.log(sig);
-			let splitVals = sig.split(":");
-			return {
-				v: splitVals[0],
-				r: "0x" + splitVals[1],
-				s: "0x" + splitVals[2]
+			if (sig === null) {
+				return {
+					v: 0,
+					r: ethers.ZeroHash,
+					s: ethers.ZeroHash
+				}
+			} else {
+				let splitVals = sig.split(":");
+				return {
+					v: splitVals[0] == 0 ? 27 : 28,
+					r: ethers.zeroPadValue("0x" + (splitVals[1].length % 2 == 0 ? splitVals[1] : "0" + splitVals[1]), 32),
+					s: ethers.zeroPadValue("0x" + (splitVals[2].length % 2 == 0 ? splitVals[2] : "0" + splitVals[2]), 32)
+				}
 			}
 		})
 	], {
@@ -69,6 +81,8 @@ async function main() {
 		gasPrice: await provider.getFeeData().gasPrice
 	});
 	console.log("Claim Transaction Hash: ", claimTransactionHash);
+	const resultClaim = await claimTransactionHash.wait();
+	console.log("Result claim:", resultClaim);
 }
 
 main()

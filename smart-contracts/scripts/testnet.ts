@@ -6,7 +6,7 @@ import path from "path";
 dotenv.config();
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY as string | undefined;
-const ORACLE_ADDRESS = "0xD46eF611b62aAE8bCf253E1f09e40dcFfd305227";
+const ORACLE_ADDRESS = "0x2522A38913e12c021491AD91e8bB41b40C3845a9";
 
 async function main() {
     
@@ -17,7 +17,7 @@ async function main() {
   const wallet = new ethers.Wallet(PRIVATE_KEY);
   
   const mainnetProvider = wallet.connect(new ethers.JsonRpcProvider("https://rpc.ankr.com/eth_goerli"));
-  const skaleProvider = wallet.connect(new ethers.JsonRpcProvider("https://staging-v3.skalenodes.com/v1/staging-utter-unripe-menkar"));
+  const skaleProvider = wallet.connect(new ethers.JsonRpcProvider("https://staging-v3.skalenodes.com/v1/staging-fast-active-bellatrix"));
 
   const mainnetNFTFactory = await ethers.getContractFactory("MainnetNFT", mainnetProvider);
   const contract = await mainnetNFTFactory.deploy();
@@ -39,7 +39,7 @@ async function main() {
   }
 
   const claimFactory = await ethers.getContractFactory("Claim", skaleProvider);
-  const contract3 = await claimFactory.deploy(ORACLE_ADDRESS, data["mainnetNFT"].address);
+  const contract3 = await claimFactory.deploy(ORACLE_ADDRESS, data["claimableToken"].address);
   await contract3.waitForDeployment();
 
   data["claim"] = {
