@@ -1,6 +1,8 @@
 SKALE Oracle JavaScript Example
 ---
 
+Note: use node 18 and higher
+
 The following codebase is an implementation of the SKALE Oracle technology in JavaScript.
 You can install the codebase by running `npm install` and can run the codebase with `node ./index.js`.
 
