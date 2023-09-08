@@ -4,7 +4,6 @@ pragma solidity ^0.8.9;
 import "./IVerifier.sol";
 
 interface IOracle {
-
     struct OracleResponse {
         uint256 cid;
         string uri;
@@ -18,6 +17,8 @@ interface IOracle {
         string[] rslts;
         IVerifier.Signature[] sigs;
     }
-    
-    function verifyOracleResponse(OracleResponse memory response) external view returns (bool);
+
+    function verifyOracleResponse(
+        OracleResponse memory response
+    ) external view returns (bool);
 }

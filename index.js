@@ -1,7 +1,7 @@
 require("dotenv").config();
 const { chain } = require("./config.json");
 const { ethers } = require("ethers");
-const deployment = require("./smart-contracts/deployments/deployments-4.json");
+const deployment = require("./smart-contracts/deployments/deployment.json");
 const claimAbi = require("./smart-contracts/artifacts/contracts/Claim.sol/Claim.json");
 const { generateOracleRequest } = require("./oracle");
 
