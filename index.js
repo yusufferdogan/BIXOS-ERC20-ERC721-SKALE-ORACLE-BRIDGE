@@ -34,9 +34,7 @@ async function main() {
       {
         from: ethers.ZeroAddress,
         to: mainnetNFT.target,
-        data: mainnetNFT.interface.encodeFunctionData("balanceOf", [
-          signer.address,
-        ]),
+        data: mainnetNFT.interface.encodeFunctionData("ownerOf", [0]),
         gas: "0xfffff",
       },
       "latest",
