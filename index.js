@@ -50,6 +50,7 @@ async function main() {
   const paramsEndIndex = res.toString().search(/time/) - 2;
 
   const parsedResult = JSON.parse(res);
+  console.log(parsedResult);
 
   const claimTransactionHash = await claim.claim(
     [
