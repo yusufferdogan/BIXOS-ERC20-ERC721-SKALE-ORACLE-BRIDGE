@@ -64,8 +64,11 @@ contract BixosPalmIslandsServerNFT is
         emit PriceChanged(nftPrice);
     }
 
-    function lockerMint(uint256 tokenId) external onlyRole(LOCKER_ROLE) {
-        _mint(_msgSender(), tokenId);
+    function lockerMint(
+        address user,
+        uint256 tokenId
+    ) external onlyRole(LOCKER_ROLE) {
+        _mint(user, tokenId);
     }
 
     function mint() external checkRemainNft {
