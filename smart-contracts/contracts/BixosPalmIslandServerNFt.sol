@@ -4,10 +4,16 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 // PALM ISLAND NFT TO DEPLOY IN SKALE CHAIN
-contract BixosPalmIslandsServerNFT is ERC721, ERC721Enumerable, AccessControl {
+contract BixosPalmIslandsServerNFT is
+    ERC721,
+    ERC721Enumerable,
+    ERC721Burnable,
+    AccessControl
+{
     bytes32 constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
 
     //30 minted + 20 can be minted in BNB chain
