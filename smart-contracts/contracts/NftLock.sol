@@ -18,15 +18,27 @@ contract NftLockSource {
     }
 
     event ClaimTokens(address indexed claimer);
+    //sent to skale
+    event TokenLocked(uint256 indexed tokenId, address indexed owner);
+    //received from skale
+    event TokenUnLocked(uint256 indexed tokenId, address indexed owner);
+
+    mapping(uint256 => address) public lockedBy;
 
     constructor(IOracle _oracle, IBixosPalmIslandServerNft _nft) {
         oracle = _oracle;
         nft = _nft;
     }
 
-    //MEANS SENDING TO SKALE
-    function lock() external {}
+    //SEND TO SKALE
+    function lock(uint256 tokenId) external {
+        nft.transferFrom(msg.sender, address(this), tokenId);
+        emit TokenLocked(tokenId, msg.sender);
+        lockedBy[tokenId] = msg.sender;
+    }
 
-    //TRANSFER TO BNB
-    function unlock() external {}
+    //SEND TO BNB
+    function unlock(
+        IOracle.OracleResponse memory response
+    ) external onlyValidResponse(response) {}
 }
