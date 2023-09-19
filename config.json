@@ -1,13 +1,14 @@
 {
   "chain": {
     "rpcUrl1": "https://mainnet.skalenodes.com/v1/honorable-steel-rasalhague",
-    "rpcUrl": "https://staging-v3.skalenodes.com/v1/staging-fast-active-bellatrix"
+    "rpcUrlSkale": "https://staging-v3.skalenodes.com/v1/staging-fast-active-bellatrix",
+    "rpcUrlBnb": "https://serene-purple-bird.bsc-testnet.discover.quiknode.pro/ee9284f67e646a2d61bdb39d81d7f5542143d638/"
   },
   "oracle": {
-      "address": "0x2522A38913e12c021491AD91e8bB41b40C3845a9",
-      "methods": {
-        "submit": "oracle_submitRequest",
-        "check": "oracle_checkResult"
-      }
+    "address": "0x2522A38913e12c021491AD91e8bB41b40C3845a9",
+    "methods": {
+      "submit": "oracle_submitRequest",
+      "check": "oracle_checkResult"
+    }
   }
 }
