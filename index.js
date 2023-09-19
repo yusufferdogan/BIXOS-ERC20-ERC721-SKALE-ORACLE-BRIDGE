@@ -10,8 +10,11 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY;
 async function main() {
   if (!PRIVATE_KEY) throw new Error("Private Key Not Found");
 
-  const provider = new ethers.JsonRpcProvider(chain.rpcUrl);
-  const signer = new ethers.Wallet(PRIVATE_KEY).connect(provider);
+  const providerSkale = new ethers.JsonRpcProvider(chain.rpcUrlSkale);
+  const signerSkale = new ethers.Wallet(PRIVATE_KEY).connect(providerSkale);
+
+  const providerBNB = new ethers.JsonRpcProvider(chain.rpcUrlBnb);
+  const signerBNB = new ethers.Wallet(PRIVATE_KEY).connect(providerBNB);
 
   console.log(1);
 
@@ -22,7 +25,7 @@ async function main() {
   const claim = new ethers.Contract(
     deployment.claim.address,
     claimAbi.abi,
-    signer
+    signerSkale
   );
 
   const request = {
@@ -96,9 +99,10 @@ async function main() {
     ],
     {
       gasLimit: BigInt(140000000),
-      gasPrice: await provider.getFeeData().gasPrice,
+      gasPrice: await providerSkale.getFeeData().gasPrice,
     }
   );
+
   console.log("Claim Transaction Hash: ", claimTransactionHash);
   const resultClaim = await claimTransactionHash.wait();
   console.log("Result claim:", resultClaim);
