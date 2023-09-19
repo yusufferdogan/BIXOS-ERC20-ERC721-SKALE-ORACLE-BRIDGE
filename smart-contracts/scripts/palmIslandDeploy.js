@@ -24,6 +24,14 @@ async function main() {
     )
   );
 
+  const UBXS = await ethers.getContractFactory("UBXS", mainnetProvider);
+  const ubxs_mainnet = await UBXS.deploy();
+  await ubxs_mainnet.waitForDeployment();
+
+  const UBXS_SKALE = await ethers.getContractFactory("UBXS", skaleProvider);
+  const ubxs_skale = await UBXS_SKALE.deploy();
+  await ubxs_skale.waitForDeployment();
+
   const palmIslandNftFactory = await ethers.getContractFactory(
     "BixosPalmIslandsServerNFT",
     mainnetProvider
@@ -33,10 +41,14 @@ async function main() {
     skaleProvider
   );
 
-  const palmIslandNftBnbContract = await palmIslandNftFactory.deploy();
+  const palmIslandNftBnbContract = await palmIslandNftFactory.deploy(
+    await ubxs_mainnet.getAddress()
+  );
   await palmIslandNftBnbContract.waitForDeployment();
 
-  const palmIslandNftSkaleContract = await palmIslandNftFactorySkale.deploy();
+  const palmIslandNftSkaleContract = await palmIslandNftFactorySkale.deploy(
+    await ubxs_skale.getAddress()
+  );
   await palmIslandNftSkaleContract.waitForDeployment();
 
   data["NFT_BNB"] = {
@@ -47,38 +59,20 @@ async function main() {
     abi: palmIslandNftFactorySkale.interface.formatJson(),
     address: await palmIslandNftSkaleContract.getAddress(),
   };
-
-  const claimableTokenFactory = await ethers.getContractFactory(
-    "ClaimableToken",
-    skaleProvider
-  );
-  const contract2 = await claimableTokenFactory.deploy();
-  await contract2.waitForDeployment();
-
-  data["claimableToken"] = {
-    abi: claimableTokenFactory.interface.formatJson(),
-    address: await contract2.getAddress(),
+  data["UBXS_SKALE"] = {
+    abi: ubxs_skale.interface.formatJson(),
+    address: await ubxs_skale.getAddress(),
   };
-
-  const claimFactory = await ethers.getContractFactory("Claim", skaleProvider);
-  const contract3 = await claimFactory.deploy(
-    ORACLE_ADDRESS,
-    data["claimableToken"].address
-  );
-  await contract3.waitForDeployment();
-
-  data["claim"] = {
-    abi: contract3.interface.formatJson(),
-    address: await contract3.getAddress(),
+  data["UBXS_BNB"] = {
+    abi: ubxs_mainnet.interface.formatJson(),
+    address: await ubxs_mainnet.getAddress(),
   };
-
-  await contract2.grantRole(ethers.id("MINTER_ROLE"), data["claim"].address);
 
   const deployments = await fs.readdir(
     path.resolve(__dirname, "../deployments")
   );
   await fs.writeFile(
-    path.resolve(__dirname, "../deployments/deployment" + ".json"),
+    path.resolve(__dirname, "../deployments/NFT_TOKEN_DEPLOYMENT" + ".json"),
     JSON.stringify(data),
     "utf-8"
   );
