@@ -53,9 +53,7 @@ contract NftLockDest {
             )
         ) revert NotLockedOnSource();
 
-        uint256 tokenId = 1; // TODO: DECODE from response.params
-
-        nft.lockerMint(msg.sender, tokenId);
+        nft.lockerMint(msg.sender);
     }
 
     function substring(
