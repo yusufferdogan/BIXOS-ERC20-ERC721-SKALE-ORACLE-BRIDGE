@@ -16,8 +16,7 @@ contract BixosPalmIslandsServerNFT is
 {
     bytes32 constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
 
-    //30 minted + 20 can be minted in BNB chain
-    uint256 public tokenIdCounter = 50;
+    uint256 public tokenIdCounter = 0;
     IERC20 private _ubxsToken;
     address private _contractAddress;
     string private baseUri = "https://game.bixos.io/nfts/";
@@ -29,6 +28,7 @@ contract BixosPalmIslandsServerNFT is
     event SaleClosed();
     event RemainNft(uint256 remainNft);
     event PriceChanged(uint256 nftPrice);
+    event LockerMint(uint256 tokenId);
 
     modifier checkRemainNft() {
         require(remainNft > 0, "NFT total supply limit reached");
@@ -64,11 +64,9 @@ contract BixosPalmIslandsServerNFT is
         emit PriceChanged(nftPrice);
     }
 
-    function lockerMint(
-        address user,
-        uint256 tokenId
-    ) external onlyRole(LOCKER_ROLE) {
-        _mint(user, tokenId);
+    function lockerMint(address user) external onlyRole(LOCKER_ROLE) {
+        _mint(user, tokenIdCounter++);
+        emit LockerMint(tokenIdCounter);
     }
 
     function mint() external checkRemainNft {
