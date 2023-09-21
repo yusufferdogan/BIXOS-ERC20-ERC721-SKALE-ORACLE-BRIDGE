@@ -24,12 +24,15 @@ async function main() {
     )
   );
 
-  const UBXS = await ethers.getContractFactory("UBXS", mainnetProvider);
-  const ubxs_mainnet = await UBXS.deploy();
+  const UBXS_Factory = await ethers.getContractFactory("UBXS", mainnetProvider);
+  const ubxs_mainnet = await UBXS_Factory.deploy();
   await ubxs_mainnet.waitForDeployment();
 
-  const UBXS_SKALE = await ethers.getContractFactory("UBXS", skaleProvider);
-  const ubxs_skale = await UBXS_SKALE.deploy();
+  const UBXS_SKALE_FACTORY = await ethers.getContractFactory(
+    "UBXS",
+    skaleProvider
+  );
+  const ubxs_skale = await UBXS_SKALE_FACTORY.deploy();
   await ubxs_skale.waitForDeployment();
 
   const palmIslandNftFactory = await ethers.getContractFactory(
@@ -60,11 +63,11 @@ async function main() {
     address: await palmIslandNftSkaleContract.getAddress(),
   };
   data["UBXS_SKALE"] = {
-    abi: ubxs_skale.interface.formatJson(),
+    abi: UBXS_Factory.interface.formatJson(),
     address: await ubxs_skale.getAddress(),
   };
   data["UBXS_BNB"] = {
-    abi: ubxs_mainnet.interface.formatJson(),
+    abi: UBXS_Factory.interface.formatJson(),
     address: await ubxs_mainnet.getAddress(),
   };
 

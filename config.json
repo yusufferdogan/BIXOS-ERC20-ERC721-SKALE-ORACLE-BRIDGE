@@ -1,7 +1,8 @@
 {
   "chain": {
+    "goerli": "https://eth-goerli.g.alchemy.com/v2/aZ_HCiqpuE3otCxDdRtGbeFaeQQxhv1C",
     "rpcUrl1": "https://mainnet.skalenodes.com/v1/honorable-steel-rasalhague",
-    "rpcUrlSkale": "https://staging-v3.skalenodes.com/v1/staging-fast-active-bellatrix",
+    "rpcUrl": "https://staging-v3.skalenodes.com/v1/staging-fast-active-bellatrix",
     "rpcUrlBnb": "https://serene-purple-bird.bsc-testnet.discover.quiknode.pro/ee9284f67e646a2d61bdb39d81d7f5542143d638/"
   },
   "oracle": {
