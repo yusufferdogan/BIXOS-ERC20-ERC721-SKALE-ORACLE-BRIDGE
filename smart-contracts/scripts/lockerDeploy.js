@@ -8,7 +8,6 @@ dotenv.config();
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const ORACLE_ADDRESS = "0x2522A38913e12c021491AD91e8bB41b40C3845a9";
-const ORACLE_BELLATRIX_ADDRESS = "0x19F7307b1328107d6def0eb858b2e03fF3bc6e52";
 
 async function main() {
   if (!PRIVATE_KEY) throw new Error("Private Key Not Found");
@@ -41,7 +40,7 @@ async function main() {
     skaleProvider
   );
   const lockerDest = await destFactory.deploy(
-    ORACLE_BELLATRIX_ADDRESS,
+    ORACLE_ADDRESS,
     deployment.SKALE_NFT.address
   );
   await lockerDest.waitForDeployment();
