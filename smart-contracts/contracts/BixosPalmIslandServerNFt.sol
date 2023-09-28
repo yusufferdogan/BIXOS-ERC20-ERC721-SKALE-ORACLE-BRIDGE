@@ -14,7 +14,6 @@ contract BixosPalmIslandsServerNFT is
     ERC721Burnable,
     AccessControl
 {
-    bytes32 constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
 
     uint256 public tokenIdCounter = 0;
     IERC20 private _ubxsToken;
@@ -41,7 +40,7 @@ contract BixosPalmIslandsServerNFT is
         _contractAddress = address(this);
         _ubxsToken = IERC20(tokenAddress);
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(LOCKER_ROLE, msg.sender);
+        //TODO: MINT TO USERS
     }
 
     function startSale(
@@ -62,11 +61,6 @@ contract BixosPalmIslandsServerNFT is
         nftPrice = _nftPrice;
 
         emit PriceChanged(nftPrice);
-    }
-
-    function lockerMint(address user) external onlyRole(LOCKER_ROLE) {
-        _mint(user, tokenIdCounter++);
-        emit LockerMint(tokenIdCounter);
     }
 
     function mint() external checkRemainNft {
