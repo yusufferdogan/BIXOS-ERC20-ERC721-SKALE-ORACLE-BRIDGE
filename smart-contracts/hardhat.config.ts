@@ -13,11 +13,15 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY as string | undefined;
 if (!PRIVATE_KEY) throw new Error("Private Key missing from .env");
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.18",
+  solidity: "0.8.19",
 
   networks: {
     goerli: {
       url: "https://eth-goerli.g.alchemy.com/v2/aZ_HCiqpuE3otCxDdRtGbeFaeQQxhv1C",
+      accounts: getWallet(),
+    },
+    skale: {
+      url: "https://staging-v3.skalenodes.com/v1/staging-fast-active-bellatrix",
       accounts: getWallet(),
     },
   },
