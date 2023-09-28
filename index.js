@@ -1,9 +1,11 @@
 require("dotenv").config();
 const { chain } = require("./config.json");
 const { ethers } = require("ethers");
-const deployment = require("./smart-contracts/deployments/NFT_TOKEN_DEPLOYMENT.json");
-const locker_source = require("./smart-contracts/artifacts/contracts/NftLockSource.sol/NftLockSource.json");
-const locker_dest = require("./smart-contracts/artifacts/contracts/NftLockDest.sol/NftLockDest.json");
+
+const BRIDGE_SOURCE = require("./smart-contracts/artifacts/contracts/UBXSBridgeSource.sol/UBXSBridgeSource.json");
+const BRIDGE_DEST = require("./smart-contracts/artifacts/contracts/UBXSBridgeDest.sol/UBXSBridgeDest.json");
+const UBXS = require("./smart-contracts/artifacts/contracts/UBXS.sol/UBXS.json");
+
 const { generateOracleRequest } = require("./oracle");
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
@@ -15,13 +17,12 @@ async function main() {
   const start = performance.now();
 
   const DEPLOYER = "0x2233F9102D53988cbCfcaB1949EC6AA21f5f2DA9";
-  //bytes32 constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
-  const LOCKER_ROLE =
-    "0xaf9a8bb3cbd6b84fbccefa71ff73e26e798553c6914585a84886212a46a90279";
-  const addresses = {
-    LOCKER_SOURCE: "0x3f520f9f44a2359F8279C6A8B9a60aCF9a869d17",
-    LOCKER_DEST: "0x00DfD90B3F46EfDDd8830F602F0E5661806bf3D4",
+
+  const BRIDGE = {
+    MAINNET: "0xa8693554c5900Fd7ff4b5c983063A036c03958F9",
+    SKALE: "0x8AABFFCb0e2c504EA9FF0d4A311f37c7C33D0eB6",
   };
+
   if (!PRIVATE_KEY) throw new Error("Private Key Not Found");
 
   const providerSkale = new ethers.JsonRpcProvider(chain.rpcUrl);
@@ -32,71 +33,55 @@ async function main() {
 
   console.log(1);
 
-  const source = new ethers.Contract(
-    addresses.LOCKER_SOURCE,
-    locker_source.abi,
+  const bridgeSource = new ethers.Contract(
+    BRIDGE.MAINNET,
+    BRIDGE_SOURCE.abi,
     signer
   );
-  const dest = new ethers.Contract(
-    addresses.LOCKER_DEST,
-    locker_dest.abi,
+  const bridgeDest = new ethers.Contract(
+    BRIDGE.SKALE,
+    BRIDGE_DEST.abi,
     signerSkale
   );
 
-  const mainnetNFT = new ethers.Contract(
-    deployment.MAINNET_NFT.address,
-    deployment.MAINNET_NFT.abi,
+  const mainnetUBXS = new ethers.Contract(
+    "0xeD3406A7dC3d221dfC8a780346788666ea3099b8",
+    UBXS.abi,
     signer
   );
-  const skaleNFT = new ethers.Contract(
-    deployment.SKALE_NFT.address,
-    deployment.SKALE_NFT.abi,
+
+  const skaleUBXS = new ethers.Contract(
+    "0xB430a748Af4Ed4E07BA53454a8247f4FA0da7484",
+    UBXS.abi,
     signerSkale
   );
 
-  /*
-  //VERY IMPORTANT
-  let tx = await skaleNFT.grantRole(LOCKER_ROLE, addresses.LOCKER_DEST);
+  // let approve = await mainnetUBXS.approve(BRIDGE.MAINNET, ethers.MaxUint256);
+  // console.log(await approve.wait());
+
+  // approve = await skaleUBXS.approve(BRIDGE.SKALE, ethers.MaxUint256);
+  // console.log(await approve.wait());
+
+  let add = await bridgeDest.addUbxsToBridge(100000 * 10 ** 6);
+  console.log(await add.wait());
+
+  let tx = await bridgeSource.sendUBXS(1000 * 10 ** 6);
   console.log(await tx.wait());
 
-  //once
-  tx = await mainnetNFT.lockerMint(DEPLOYER);
-  console.log(await tx.wait());
-
-  await mainnetNFT.setApprovalForAll(addresses.LOCKER_SOURCE, true);
-  console.log(await tx.wait());
-
-  const lockTx = await source.lock(1);
-  console.log(await lockTx.wait());
-
-  let tx = await skaleNFT.setApprovalForAll(addresses.LOCKER_DEST, true);
-  console.log(await tx.wait());
-
-  tx = await dest.lock(0);
-  console.log(await tx.wait());
-  */
-
-  // console.log(await source.lockedBy(1));
-  console.log(await dest.burnedBy(0));
-
-  // console.log(await source.lockedTokenIdsByUser(DEPLOYER, 0));
-  // console.log(await skaleNFT.ownerOf(0));
-
-  // if true send to skale else send to mainnet
-  const sendToSkale = false;
+  console.log(await bridgeSource.getSentAmount(DEPLOYER));
 
   const request = {
     cid: 1,
-    uri: sendToSkale ? chain.goerli : chain.rpcUrl,
+    uri: chain.goerli,
     encoding: "json",
     ethApi: "eth_call",
     params: [
       {
         from: ethers.ZeroAddress,
-        to: sendToSkale ? addresses.LOCKER_SOURCE : addresses.LOCKER_DEST,
-        data: sendToSkale
-          ? source.interface.encodeFunctionData("lockedBy", [1])
-          : dest.interface.encodeFunctionData("burnedBy", [0]),
+        to: BRIDGE.MAINNET,
+        data: bridgeSource.interface.encodeFunctionData("getSentAmount", [
+          DEPLOYER,
+        ]),
         gas: "0xfffff",
       },
       "latest",
@@ -156,15 +141,11 @@ async function main() {
   console.log(params);
 
   const obj = {
-    gasLimit: sendToSkale ? BigInt(140000000) : BigInt(5000000),
-    gasPrice: sendToSkale
-      ? await providerSkale.getFeeData().gasPrice
-      : await provider.getFeeData().gasPrice,
+    gasLimit: BigInt(140000000),
+    gasPrice: await providerSkale.getFeeData().gasPrice,
   };
 
-  const claimTransactionHash = sendToSkale
-    ? await dest.unlock(params, obj)
-    : await source.unlock(params, obj);
+  const claimTransactionHash = await bridgeDest.receiveUbxs(params, obj);
 
   console.log("Claim Transaction Hash: ", claimTransactionHash);
   const resultClaim = await claimTransactionHash.wait();
@@ -180,17 +161,3 @@ main().catch((err) => {
   process.exitCode = 1;
   console.error(err);
 });
-/*
-  console.log(locker_deployment.LOCKER_SOURCE.abi);
-  console.log(locker_deployment.LOCKER_SOURCE.address);
-
-  console.log(locker_deployment.LOCKER_DEST.abi);
-  console.log(locker_deployment.LOCKER_DEST.address);
-
-  console.log(deployment.MAINNET_NFT.address);
-  console.log(deployment.MAINNET_NFT.abi);
-
-  console.log(deployment.SKALE_NFT.address);
-  console.log(deployment.SKALE_NFT.abi);
-
-*/
