@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.19;
 import "./interfaces/IOracle.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -15,6 +15,8 @@ contract UBXSBridgeDest is Ownable {
     event LogParam(uint256 remaining);
     event LogParam(string remaining);
     event LogParam(bool remaining);
+
+    error OnlyTrustedContract();
 
     mapping(address => uint256) public receivedAmount;
 
@@ -42,12 +44,15 @@ contract UBXSBridgeDest is Ownable {
         string memory strAddr = substring(response.rslts[0], 90, 130);
         uint256 amount = convertString(strNum);
 
-        string memory senderStr = Strings.toHexString(uint160(trustedContract), 20);
-
-        emit LogParam(
-            keccak256(bytes(senderStr)) ==
-                keccak256(bytes(string.concat("0x", strAddr)))
+        string memory senderStr = Strings.toHexString(
+            uint160(trustedContract),
+            20
         );
+
+        if (
+            keccak256(bytes(senderStr)) !=
+            keccak256(bytes(string.concat("0x", strAddr)))
+        ) revert OnlyTrustedContract();
 
         ubxs.transfer(msg.sender, amount - receivedAmount[msg.sender]);
         receivedAmount[msg.sender] += amount;

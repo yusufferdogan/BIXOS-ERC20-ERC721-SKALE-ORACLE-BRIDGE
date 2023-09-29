@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-//DEPLOY ON SKALE
+//DEPLOY ON MAINNET
 contract UBXSBridgeSource is Ownable {
     IERC20 public ubxs;
 
