@@ -1,17 +1,14 @@
-import { ethers, tenderly } from "hardhat";
+import { ethers } from "hardhat";
 import { Contract, ContractFactory } from "ethers";
 
 async function main() {
-  const isSource = true;
+  const isSource = false;
 
   const UBXS = {
     MAINNET: "0xeD3406A7dC3d221dfC8a780346788666ea3099b8",
     SKALE: "0xB430a748Af4Ed4E07BA53454a8247f4FA0da7484",
   };
-  const BRIDGE = {
-    MAINNET: "0xa8693554c5900Fd7ff4b5c983063A036c03958F9",
-    SKALE: "0x8AABFFCb0e2c504EA9FF0d4A311f37c7C33D0eB6",
-  };
+  const SOURCE_BRIDGE_ADDRESS = "0xC8b072B634A9e0EdFF8EfA4FdD9491dB6FA71dEb";
 
   const ORACLE_ADDRESS = "0x2522A38913e12c021491AD91e8bB41b40C3845a9";
   const contractName: string = isSource ? "UBXSBridgeSource" : "UBXSBridgeDest";
@@ -19,7 +16,7 @@ async function main() {
     ORACLE_ADDRESS,
     UBXS.SKALE,
     //trust address
-    BRIDGE.MAINNET,
+    SOURCE_BRIDGE_ADDRESS,
   ];
   const sourceArgs: Array<string | number | Array<string | number>> = [
     UBXS.MAINNET,

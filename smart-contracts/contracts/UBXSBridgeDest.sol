@@ -12,9 +12,9 @@ contract UBXSBridgeDest is Ownable {
 
     event Received(uint256 amount);
     event WithdrewRemaining(uint256 remaining);
-    event LogParam(uint256 indexed remaining);
-    event LogParam(string indexed remaining);
-    event LogParam(bool indexed remaining);
+    event LogParam(uint256 remaining);
+    event LogParam(string remaining);
+    event LogParam(bool remaining);
 
     mapping(address => uint256) public receivedAmount;
 
@@ -39,12 +39,10 @@ contract UBXSBridgeDest is Ownable {
         IOracle.OracleResponse memory response
     ) external onlyValidResponse(response) {
         string memory strNum = substring(response.rslts[0], 2, 66);
-        string memory strAddr = substring(response.rslts[0], 66, 130);
+        string memory strAddr = substring(response.rslts[0], 90, 130);
+        uint256 amount = convertString(strNum);
 
-        uint256 amount = stringToNumber(strNum);
-        emit LogParam(amount);
-
-        string memory senderStr = Strings.toHexString(uint160(msg.sender), 20);
+        string memory senderStr = Strings.toHexString(uint160(trustedContract), 20);
 
         emit LogParam(
             keccak256(bytes(senderStr)) ==
@@ -70,22 +68,6 @@ contract UBXSBridgeDest is Ownable {
         remaining = 0;
     }
 
-    function stringToNumber(
-        string memory numString
-    ) public pure returns (uint) {
-        uint val = 0;
-        bytes memory stringBytes = bytes(numString);
-        for (uint i = 0; i < stringBytes.length; i++) {
-            uint exp = stringBytes.length - i;
-            bytes1 ival = stringBytes[i];
-            uint8 uval = uint8(ival);
-            uint jval = uval - uint(0x30);
-
-            val += (uint(jval) * (10 ** (exp - 1)));
-        }
-        return val;
-    }
-
     function substring(
         string memory str,
         uint startIndex,
@@ -97,5 +79,28 @@ contract UBXSBridgeDest is Ownable {
             result[i - startIndex] = strBytes[i];
         }
         return string(result);
+    }
+
+    function numberFromAscII(bytes1 b) private pure returns (uint8 res) {
+        if (b >= "0" && b <= "9") {
+            return uint8(b) - uint8(bytes1("0"));
+        } else if (b >= "A" && b <= "F") {
+            return 10 + uint8(b) - uint8(bytes1("A"));
+        } else if (b >= "a" && b <= "f") {
+            return 10 + uint8(b) - uint8(bytes1("a"));
+        }
+        return uint8(b); // or return error ...
+    }
+
+    function convertString(
+        string memory str
+    ) public pure returns (uint256 value) {
+        bytes memory b = bytes(str);
+        uint256 number = 0;
+        for (uint i = 0; i < b.length; i++) {
+            number = number << 4; // or number = number * 16
+            number |= numberFromAscII(b[i]); // or number += numberFromAscII(b[i]);
+        }
+        return number;
     }
 }

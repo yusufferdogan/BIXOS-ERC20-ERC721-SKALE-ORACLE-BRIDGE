@@ -9,18 +9,15 @@ const UBXS = require("./smart-contracts/artifacts/contracts/UBXS.sol/UBXS.json")
 const { generateOracleRequest } = require("./oracle");
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
-/*
-LOCK IN MAINNET UNLOCK IN SKALE
-LOCK IN SKALE UNLOCK IN MAINNET
-*/
+
 async function main() {
   const start = performance.now();
 
   const DEPLOYER = "0x2233F9102D53988cbCfcaB1949EC6AA21f5f2DA9";
 
   const BRIDGE = {
-    MAINNET: "0xa8693554c5900Fd7ff4b5c983063A036c03958F9",
-    SKALE: "0x8AABFFCb0e2c504EA9FF0d4A311f37c7C33D0eB6",
+    MAINNET: "0xC8b072B634A9e0EdFF8EfA4FdD9491dB6FA71dEb",
+    SKALE: "0x0e65F670d082DefC42E91e52c15fe348B24461e1",
   };
 
   if (!PRIVATE_KEY) throw new Error("Private Key Not Found");
@@ -56,15 +53,16 @@ async function main() {
     signerSkale
   );
 
-  // let approve = await mainnetUBXS.approve(BRIDGE.MAINNET, ethers.MaxUint256);
-  // console.log(await approve.wait());
+  let approve = await mainnetUBXS.approve(BRIDGE.MAINNET, ethers.MaxUint256);
+  console.log(await approve.wait());
 
-  // approve = await skaleUBXS.approve(BRIDGE.SKALE, ethers.MaxUint256);
-  // console.log(await approve.wait());
+  approve = await skaleUBXS.approve(BRIDGE.SKALE, ethers.MaxUint256);
+  console.log(await approve.wait());
 
   let add = await bridgeDest.addUbxsToBridge(100000 * 10 ** 6);
   console.log(await add.wait());
 
+  //0xffffff
   let tx = await bridgeSource.sendUBXS(1000 * 10 ** 6);
   console.log(await tx.wait());
 
